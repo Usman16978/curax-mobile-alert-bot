@@ -18,24 +18,24 @@ jobs:
       with:
         python-version: "3.10"
 
-    # ---------------- JAVA ----------------
-    - name: Set Java 11
-      run: |
-        sudo update-alternatives --set java /usr/lib/jvm/temurin-11-jdk-amd64/bin/java
-        sudo update-alternatives --set javac /usr/lib/jvm/temurin-11-jdk-amd64/bin/javac
-
     # ---------------- SYSTEM DEPS ----------------
     - name: Install system dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y \
           git zip unzip curl \
-          openjdk-11-jdk \
+          openjdk-11-jdk openjdk-17-jdk \
           autoconf libtool pkg-config \
           zlib1g-dev libncurses5-dev libncursesw5-dev \
           cmake libffi-dev libssl-dev
 
-    # ---------------- ANDROID SDK (FIXED) ----------------
+    # ---------------- JAVA 17 (FOR SDKMANAGER) ----------------
+    - name: Set Java 17 for Android SDK
+      run: |
+        sudo update-alternatives --set java /usr/lib/jvm/temurin-17-jdk-amd64/bin/java
+        sudo update-alternatives --set javac /usr/lib/jvm/temurin-17-jdk-amd64/bin/javac
+
+    # ---------------- ANDROID SDK ----------------
     - name: Install Android SDK and accept licenses
       run: |
         export ANDROID_SDK_ROOT=$HOME/android-sdk
@@ -57,8 +57,14 @@ jobs:
           "platforms;android-33" \
           "build-tools;33.0.2"
 
+    # ---------------- JAVA 11 (FOR BUILDOZER) ----------------
+    - name: Switch back to Java 11
+      run: |
+        sudo update-alternatives --set java /usr/lib/jvm/temurin-11-jdk-amd64/bin/java
+        sudo update-alternatives --set javac /usr/lib/jvm/temurin-11-jdk-amd64/bin/javac
+
     # ---------------- PYTHON TOOLS ----------------
-    - name: Install Python tools
+    - name: Install Python build tools
       run: |
         pip install --upgrade pip
         pip install cython==0.29.33 buildozer python-for-android==2023.09.16
@@ -68,7 +74,7 @@ jobs:
       run: |
         rm -rf .buildozer
 
-    # ---------------- BUILD ----------------
+    # ---------------- BUILD APK ----------------
     - name: Build APK with Buildozer
       run: |
         export ANDROID_SDK_ROOT=$HOME/android-sdk
