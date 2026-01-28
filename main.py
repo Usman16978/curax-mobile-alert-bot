@@ -466,30 +466,7 @@ CuraX → Settings → Alert Bot[/color][/size]'''
         conn.commit()
         conn.close()
         
-        # Show notification
-        if platform == 'android':
-            from android.runnable import run_on_ui_thread
-            from jnius import autoclass
-            
-            @run_on_ui_thread
-            def show_notification():
-                PythonActivity = autoclass('org.kivy.android.PythonActivity')
-                NotificationCompat = autoclass('androidx.core.app.NotificationCompat')
-                NotificationManager = autoclass('android.app.NotificationManager')
-                Context = autoclass('android.content.Context')
-                
-                activity = PythonActivity.mActivity
-                notification_service = activity.getSystemService(Context.NOTIFICATION_SERVICE)
-                
-                builder = NotificationCompat.Builder(activity, 'curax_alerts')
-                builder.setContentTitle(alert_type)
-                builder.setContentText(message)
-                builder.setSmallIcon(activity.getApplicationInfo().icon)
-                builder.setPriority(NotificationCompat.PRIORITY_HIGH)
-                
-                notification_service.notify(1, builder.build())
-            
-            show_notification()
+        print(f"New alert saved: {alert_type}")
     
     def clear_all_alerts(self, instance):
         """Clear all alerts with password verification"""
