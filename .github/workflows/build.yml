@@ -10,19 +10,21 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-    - name: Checkout code
+    - name: Checkout repository
       uses: actions/checkout@v4
 
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.10'
+        python-version: "3.10"
 
-    - name: Set Java 11 (CRITICAL)
+    # ---------------- JAVA ----------------
+    - name: Set Java 11
       run: |
         sudo update-alternatives --set java /usr/lib/jvm/temurin-11-jdk-amd64/bin/java
         sudo update-alternatives --set javac /usr/lib/jvm/temurin-11-jdk-amd64/bin/javac
 
+    # ---------------- SYSTEM DEPS ----------------
     - name: Install system dependencies
       run: |
         sudo apt-get update
@@ -33,40 +35,48 @@ jobs:
           zlib1g-dev libncurses5-dev libncursesw5-dev \
           cmake libffi-dev libssl-dev
 
-    - name: Install Android SDK + Accept Licenses
-    run: |
-      export ANDROID_SDK_ROOT=$HOME/android-sdk
-      mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
-      cd $ANDROID_SDK_ROOT
-  
-      curl -o cmdline-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
-      unzip -q cmdline-tools.zip
-  
-      mv cmdline-tools cmdline-tools-temp
-      mkdir -p cmdline-tools/latest
-      mv cmdline-tools-temp/* cmdline-tools/latest/
-  
-      export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$PATH
-  
-      yes | sdkmanager --licenses
-      sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
+    # ---------------- ANDROID SDK (FIXED) ----------------
+    - name: Install Android SDK and accept licenses
+      run: |
+        export ANDROID_SDK_ROOT=$HOME/android-sdk
+        mkdir -p $ANDROID_SDK_ROOT
+        cd $ANDROID_SDK_ROOT
 
+        curl -o cmdline-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+        unzip -q cmdline-tools.zip
+
+        mv cmdline-tools cmdline-tools-temp
+        mkdir -p cmdline-tools/latest
+        mv cmdline-tools-temp/* cmdline-tools/latest/
+
+        export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$PATH
+
+        yes | sdkmanager --licenses
+        sdkmanager \
+          "platform-tools" \
+          "platforms;android-33" \
+          "build-tools;33.0.2"
+
+    # ---------------- PYTHON TOOLS ----------------
     - name: Install Python tools
       run: |
         pip install --upgrade pip
         pip install cython==0.29.33 buildozer python-for-android==2023.09.16
 
-    - name: Clean old build
+    # ---------------- CLEAN ----------------
+    - name: Clean previous build
       run: |
         rm -rf .buildozer
 
+    # ---------------- BUILD ----------------
     - name: Build APK with Buildozer
       run: |
         export ANDROID_SDK_ROOT=$HOME/android-sdk
         export PATH=$ANDROID_SDK_ROOT/platform-tools:$PATH
         buildozer -v android debug
 
-    - name: Upload APK
+    # ---------------- UPLOAD ----------------
+    - name: Upload APK artifact
       uses: actions/upload-artifact@v4
       with:
         name: CuraX-Alert-Bot-APK
