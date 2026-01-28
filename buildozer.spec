@@ -3,15 +3,12 @@ title = CuraX Alert Bot
 package.name = curaxalertbot
 package.domain = com.curax
 source.dir = .
-source.include_exts = py,png,jpg,kv,atlas
+source.include_exts = py
 version = 1.0
 
-requirements = python3,kivy==2.2.1,pyjnius==1.4.2,requests,certifi,urllib3,charset-normalizer,idna
+requirements = python3,kivy==2.2.1
 
 orientation = portrait
-presplash.color = #0099ff
-
-android.permissions = INTERNET,VIBRATE,WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE
 
 android.api = 33
 android.minapi = 21
@@ -22,4 +19,3 @@ android.build_tools_version = 33.0.2
 [buildozer]
 log_level = 2
 warn_on_root = 1
-
