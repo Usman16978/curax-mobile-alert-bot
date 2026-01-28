@@ -27,25 +27,46 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y \
-          git zip unzip openjdk-11-jdk \
+          git zip unzip curl \
+          openjdk-11-jdk \
           autoconf libtool pkg-config \
           zlib1g-dev libncurses5-dev libncursesw5-dev \
           cmake libffi-dev libssl-dev
 
-    - name: Install Python dependencies
+    # 🔥 THIS STEP FIXES YOUR ERROR
+    - name: Install Android SDK + Accept Licenses
+      run: |
+        mkdir -p $HOME/android-sdk
+        cd $HOME/android-sdk
+
+        curl -o cmdline-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+        unzip cmdline-tools.zip
+        mkdir -p cmdline-tools/latest
+        mv cmdline-tools/* cmdline-tools/latest/
+
+        export ANDROID_SDK_ROOT=$HOME/android-sdk
+        export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$PATH
+
+        yes | sdkmanager --licenses
+        sdkmanager \
+          "platform-tools" \
+          "platforms;android-33" \
+          "build-tools;33.0.2"
+
+    - name: Install Python tools
       run: |
         pip install --upgrade pip
         pip install cython==0.29.33 buildozer python-for-android==2023.09.16
 
-    - name: Clean old build (important)
+    - name: Clean old build
       run: |
         rm -rf .buildozer
 
     - name: Build APK with Buildozer
       run: |
+        export ANDROID_SDK_ROOT=$HOME/android-sdk
+        export PATH=$ANDROID_SDK_ROOT/platform-tools:$PATH
         buildozer -v android debug
-      env:
-        ANDROID_SDK_ACCEPT_LICENSE: "y"
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
