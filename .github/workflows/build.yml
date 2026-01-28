@@ -18,16 +18,32 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Install dependencies
+    - name: Set Java 11 (CRITICAL)
+      run: |
+        sudo update-alternatives --set java /usr/lib/jvm/temurin-11-jdk-amd64/bin/java
+        sudo update-alternatives --set javac /usr/lib/jvm/temurin-11-jdk-amd64/bin/javac
+
+    - name: Install system dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev
-        pip install --upgrade cython==0.29.33 buildozer
+        sudo apt-get install -y \
+          git zip unzip openjdk-11-jdk \
+          autoconf libtool pkg-config \
+          zlib1g-dev libncurses5-dev libncursesw5-dev \
+          cmake libffi-dev libssl-dev
+
+    - name: Install Python dependencies
+      run: |
+        pip install --upgrade pip
+        pip install cython==0.29.33 buildozer python-for-android==2023.09.16
+
+    - name: Clean old build (important)
+      run: |
+        rm -rf .buildozer
 
     - name: Build APK with Buildozer
       run: |
-        cd $GITHUB_WORKSPACE
-        yes | buildozer -v android debug
+        buildozer -v android debug
       env:
         ANDROID_SDK_ACCEPT_LICENSE: "y"
 
