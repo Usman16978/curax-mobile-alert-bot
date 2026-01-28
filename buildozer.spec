@@ -19,7 +19,7 @@ source.include_exts = py,png,jpg,kv,atlas,db
 version = 1.0
 
 # Application requirements
-requirements = python3,kivy,sqlite3,requests
+requirements = python3,kivy==2.1.0,requests,pyjnius,android
 
 # Presplash background color
 presplash.color = #0099ff
@@ -43,7 +43,7 @@ android.minapi = 21
 android.ndk = 25b
 
 # Android architecture
-android.archs = arm64-v8a, armeabi-v7a
+android.archs = armeabi-v7a
 
 # Android services
 #android.services = AlertReceiver:./service.py
