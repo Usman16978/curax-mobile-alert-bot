@@ -33,25 +33,23 @@ jobs:
           zlib1g-dev libncurses5-dev libncursesw5-dev \
           cmake libffi-dev libssl-dev
 
-    # 🔥 THIS STEP FIXES YOUR ERROR
     - name: Install Android SDK + Accept Licenses
-      run: |
-        mkdir -p $HOME/android-sdk
-        cd $HOME/android-sdk
-
-        curl -o cmdline-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
-        unzip cmdline-tools.zip
-        mkdir -p cmdline-tools/latest
-        mv cmdline-tools/* cmdline-tools/latest/
-
-        export ANDROID_SDK_ROOT=$HOME/android-sdk
-        export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$PATH
-
-        yes | sdkmanager --licenses
-        sdkmanager \
-          "platform-tools" \
-          "platforms;android-33" \
-          "build-tools;33.0.2"
+    run: |
+      export ANDROID_SDK_ROOT=$HOME/android-sdk
+      mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
+      cd $ANDROID_SDK_ROOT
+  
+      curl -o cmdline-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+      unzip -q cmdline-tools.zip
+  
+      mv cmdline-tools cmdline-tools-temp
+      mkdir -p cmdline-tools/latest
+      mv cmdline-tools-temp/* cmdline-tools/latest/
+  
+      export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$PATH
+  
+      yes | sdkmanager --licenses
+      sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
 
     - name: Install Python tools
       run: |
