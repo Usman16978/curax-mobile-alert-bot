@@ -27,7 +27,9 @@ jobs:
     - name: Build APK with Buildozer
       run: |
         cd $GITHUB_WORKSPACE
-        buildozer -v android debug
+        yes | buildozer -v android debug
+      env:
+        ANDROID_SDK_ACCEPT_LICENSE: "y"
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
